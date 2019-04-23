@@ -8,15 +8,15 @@ let map = {};
 let monsters = [];
 
 
-function loadMap(){
+function loadMap() {
   const data = fs.readFileSync('./monsters/world_map_small.txt').toString('utf-8').split('\n');
-  
+
   data.forEach(line => {
     const city = line.split(' ')[0];
     const connections = line.split(' ');
     connections.shift();
     map[city] = {};
-  
+
     connections.forEach((connection) => {
       const direction = connection.split('=')[0];
       const connectedCity = connection.split('=')[1];
@@ -39,6 +39,21 @@ function spreadMonsters(numberOfMonsters) {
   return monsters;
 }
 
+function moveMonsters() {
+
+  monsters = monsters.map((monster) => {
+    const { name, location, moves, alive } = monster;
+
+    if (!alive) {
+      return monster;
+    }
+
+    const movementOptions = 0
+
+  })
+
+}
+
 function checkDestroyedCities(monsters) {
 
   let killedMonsters = [];
@@ -59,9 +74,12 @@ function checkDestroyedCities(monsters) {
         :
         cleanDuplicateCities.concat(city)
     ),
-      [])
+  [])
 
-  console.log("DESTROYED CITIES", destroyedCities);
+  // Remove destroyed cities
+  destroyedCities.forEach(city => {
+    delete map[city];
+  });
 
   // Update Monsters according to fights and push killed monsters to killedMonsters
   monsters = monsters.map((monster) => {
@@ -104,3 +122,4 @@ function logCitiesDestroyed(destroyedCities, killedMonsters) {
 loadMap();
 spreadMonsters(20);
 checkDestroyedCities(monsters);
+console.log(map);
