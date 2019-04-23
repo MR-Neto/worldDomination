@@ -2,6 +2,7 @@ const fs = require('fs');
 
 const data = fs.readFileSync('./monsters/world_map_small.txt').toString('utf-8').split('\n');
 
+// Map object will store all cities as keys which have an object with  directions(North, South, West, East) as properties. 
 let map = {};
 
 data.forEach(line => {
@@ -17,4 +18,10 @@ data.forEach(line => {
   })
 });
 
-console.log(map);
+function spreadMonsters(numberOfMonsters) {
+  const cities = Object.keys(map);
+  const monsters = Array.from({ length: numberOfMonsters }, () => cities[Math.floor(Math.random()*cities.length)]);
+  console.log(monsters);
+}
+
+debugger;
