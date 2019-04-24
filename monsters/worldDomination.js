@@ -62,7 +62,6 @@ const worldDestruction = (numberOfMonsters) => {
   };
 
   const checkDestroyedCities = () => {
-    const killedMonsters = [];
 
     // find the cities which were destroyed (have two or more monsters) in the next steps
     const destroyedCities = monsters
@@ -94,14 +93,10 @@ const worldDestruction = (numberOfMonsters) => {
     });
 
 
-    // Update Monsters according to fights and push killed monsters to killedMonsters
-    monsters = monsters.filter((monster) => {
-      if (destroyedCities.includes(monster.location)) {
-        killedMonsters.push(monster);
-        return false;
-      }
-      return true;
-    });
+    // keep only alive monsters
+    monsters = monsters.filter(monster => !destroyedCities.includes(monster.location));
+    // track killed monsters
+    const killedMonsters = monsters.filter(monster => destroyedCities.includes(monster.location));
 
     logCitiesDestroyed(destroyedCities, killedMonsters);
   };
@@ -127,7 +122,6 @@ const worldDestruction = (numberOfMonsters) => {
 
   const logFinalResult = () => {
     Object
-
       // get array of standing cities
       .keys(map)
       .forEach((city) => {
@@ -185,4 +179,4 @@ const worldDestruction = (numberOfMonsters) => {
   logFinalResult();
 };
 
-worldDestruction(1000);
+worldDestruction(8000);
