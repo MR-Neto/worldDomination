@@ -62,7 +62,6 @@ const worldDestruction = (numberOfMonsters) => {
   };
 
   const checkDestroyedCities = () => {
-
     // find the cities which were destroyed (have two or more monsters) in the next steps
     const destroyedCities = monsters
 
