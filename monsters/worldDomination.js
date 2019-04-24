@@ -1,125 +1,129 @@
 "use strict";
 const fs = require('fs');
 
-// Map object will store all cities as keys which have an object with  directions(North, South, West, East) as properties. 
-let map = {};
+function worldDestruction(numberOfMonsters) {
 
-// Array of monsters, which are objects with the properties (name, location, moves and alive)
-let monsters = [];
+  function loadMap() {
+    const data = fs.readFileSync('./monsters/world_map_small.txt').toString('utf-8').split('\n');
+    const map = {};
+    data.forEach(line => {
+      const city = line.split(' ')[0];
+      const connections = line.split(' ');
+      connections.shift();
+      map[city] = {};
 
+      connections.forEach((connection) => {
+        const direction = connection.split('=')[0];
+        const connectedCity = connection.split('=')[1];
+        map[city][direction] = connectedCity;
+      })
+    });
 
-function loadMap() {
-  const data = fs.readFileSync('./monsters/world_map_small.txt').toString('utf-8').split('\n');
+    return map;
+  }
 
-  data.forEach(line => {
-    const city = line.split(' ')[0];
-    const connections = line.split(' ');
-    connections.shift();
-    map[city] = {};
+  function createMonsters() {
+    const cities = Object.keys(map);
+    return Array.from({ length: numberOfMonsters }, (v, k) => (
+      {
+        name: k,
+        location: cities[Math.floor(Math.random() * cities.length)],
+        moves: 0,
+      })
+    );
+  }
 
-    connections.forEach((connection) => {
-      const direction = connection.split('=')[0];
-      const connectedCity = connection.split('=')[1];
-      map[city][direction] = connectedCity;
-    })
-  });
+  function moveMonsters() {
 
-}
+    monsters = monsters.map((monster) => {
+      const { name, location, moves } = monster;
 
-function spreadMonsters(numberOfMonsters) {
-  const cities = Object.keys(map);
-  monsters = Array.from({ length: numberOfMonsters }, (v, k) => (
-    {
-      name: k,
-      location: cities[Math.floor(Math.random() * cities.length)],
-      moves: 0,
-      alive: true
-    })
-  );
-  return monsters;
-}
+      const movementOptions = Object
+        .values(map[location])
+        .filter((city) => Object.keys(map).includes(city));
 
-function moveMonsters() {
+      const newLocation = movementOptions[Math.floor(Math.random() * movementOptions.length)]
 
-  monsters = monsters.map((monster) => {
-    const { name, location, moves, alive } = monster;
-
-    if (!alive) {
-      return monster;
-    }
-
-    const movementOptions = 0
-
-  })
-
-}
-
-function checkDestroyedCities(monsters) {
-
-  let killedMonsters = [];
-
-  //find the cities which were destroyed (have two or more monsters) in the next steps
-  const destroyedCities = monsters
-
-    //get an array of cities where monsters are located
-    .map((monster) => monster.location)
-
-    //filter to cities that appear only more than 1 time
-    .filter((citySearch, index, cities) => cities.reduce((count, city) => count + (city === citySearch), 0) > 1)
-
-    //remove duplicate cities
-    .reduce((cleanDuplicateCities, city) => (
-      cleanDuplicateCities.includes(city) ?
-        cleanDuplicateCities
-        :
-        cleanDuplicateCities.concat(city)
-    ),
-  [])
-
-  // Remove destroyed cities
-  destroyedCities.forEach(city => {
-    delete map[city];
-  });
-
-  // Update Monsters according to fights and push killed monsters to killedMonsters
-  monsters = monsters.map((monster) => {
-    const { name, location, moves, alive } = monster;
-    if (destroyedCities.includes(monster.location) && alive) {
-      killedMonsters.push(monster);
       return {
         name,
-        location,
-        moves,
-        alive: false
+        location: newLocation,
+        moves: moves + 1,
       }
-    }
-    return monster;
-  });
+    })
+  }
 
-  logCitiesDestroyed(destroyedCities, killedMonsters);
+  function checkDestroyedCities() {
+
+    let killedMonsters = [];
+
+    //find the cities which were destroyed (have two or more monsters) in the next steps
+    const destroyedCities = monsters
+
+      //get an array of cities where monsters are located
+      .map((monster) => monster.location)
+
+      //filter to cities that appear only more than 1 time
+      .filter((citySearch, index, cities) => cities.reduce((count, city) => count + (city === citySearch), 0) > 1)
+
+      //remove duplicate cities
+      .reduce((cleanDuplicateCities, city) => (
+        cleanDuplicateCities.includes(city) ?
+          cleanDuplicateCities
+          :
+          cleanDuplicateCities.concat(city)
+      ),
+        [])
+
+    // Remove destroyed cities
+    destroyedCities.forEach(city => {
+      delete map[city];
+    });
+
+
+    // Update Monsters according to fights and push killed monsters to killedMonsters
+    monsters = monsters.filter((monster) => {
+      if (destroyedCities.includes(monster.location)) {
+        killedMonsters.push(monster);
+        return false;
+      }
+      return true;
+    });
+
+    logCitiesDestroyed(destroyedCities, killedMonsters);
+
+  }
+
+  function logCitiesDestroyed(destroyedCities, killedMonsters) {
+    destroyedCities.forEach((city) => {
+      const logMonsters = killedMonsters.filter((monster) => monster.location === city)
+
+      const logSentence = logMonsters.reduce((string, monster, index) => {
+        switch (index) {
+          case 0:
+            return string.concat(` by monster ${monster.name}`);
+          case logMonsters.length - 1:
+            return string.concat(` and monster ${monster.name}!`);
+          default:
+            return string.concat(`, by monster ${monster.name}`);
+        }
+      }, "")
+
+      console.log(`${city} has been destroyed${logSentence}`)
+    });
+
+  }
+
+  // Map object will store all cities as keys which have an object with  directions(North, South, West, East) as properties. 
+  let map = loadMap();
+  
+  // Array of monsters, which are objects with the properties (name, location and moves)
+  let monsters = createMonsters(numberOfMonsters);
+
+  // When monsters are placed randomly, they may fall in the same city. Thus, we need to destroy those cities.
+  checkDestroyedCities();
+
+  moveMonsters();
+
 }
 
-function logCitiesDestroyed(destroyedCities, killedMonsters) {
-  destroyedCities.forEach((city) => {
-    const logMonsters = killedMonsters.filter((monster) => monster.location === city)
-
-    const logSentence = logMonsters.reduce((string, monster, index) => {
-      switch (index) {
-        case 0:
-          return string.concat(` by monster ${monster.name}`);
-        case logMonsters.length - 1:
-          return string.concat(` and monster ${monster.name}!`);
-        default:
-          return string.concat(`, by monster ${monster.name}`);
-      }
-    }, "")
-
-    console.log(`${city} has been destroyed${logSentence}`)
-  });
-
-}
-
-loadMap();
-spreadMonsters(20);
-checkDestroyedCities(monsters);
-console.log(map);
+worldDestruction(20);
