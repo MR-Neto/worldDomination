@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const worldDestruction = (numberOfMonsters) => {
   const loadMap = () => {
-    const data = fs.readFileSync('./monsters/world_map_small.txt').toString('utf-8').split('\n');
+    const data = fs.readFileSync('./monsters/world_map_medium.txt').toString('utf-8').split('\n');
     const map = {};
     data.forEach((line) => {
       // don't consider empty lines
@@ -190,4 +190,4 @@ const worldDestruction = (numberOfMonsters) => {
   logFinalResult();
 };
 
-worldDestruction(30);
+worldDestruction(8000);
