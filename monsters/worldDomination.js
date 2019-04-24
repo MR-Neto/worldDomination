@@ -126,23 +126,18 @@ const worldDestruction = (numberOfMonsters) => {
   };
 
   const logFinalResult = () => {
-    const logResult = Object
+    Object
 
       // get array of standing cities
       .keys(map)
-
-      // reduce array to string to console log
-      .reduce((acc, city) => {
-        // construct a string for connections of each city
+      .forEach((city) => {
         const connectionString = Object
           .entries(map[city])
           .reduce((accumulatedString, connection) => (
             accumulatedString.concat(` ${connection[0]}=${connection[1]}`)
           ), '');
-        return acc.concat(city, connectionString, '\n');
-      }, '');
-
-    console.log(logResult);
+        console.log(city.concat(connectionString));
+      });
   };
 
   const oppositeDirection = (direction) => {
@@ -190,4 +185,4 @@ const worldDestruction = (numberOfMonsters) => {
   logFinalResult();
 };
 
-worldDestruction(8000);
+worldDestruction(1000);
