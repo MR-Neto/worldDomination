@@ -3,9 +3,8 @@
 
 const fs = require('fs');
 
-
-function worldDestruction(numberOfMonsters) {
-  function loadMap() {
+const worldDestruction = (numberOfMonsters) => {
+  const loadMap = () => {
     const data = fs.readFileSync('./monsters/world_map_medium.txt').toString('utf-8').split('\n');
     const map = {};
     data.forEach((line) => {
@@ -25,9 +24,9 @@ function worldDestruction(numberOfMonsters) {
     });
 
     return map;
-  }
+  };
 
-  function createMonsters() {
+  const createMonsters = () => {
     const cities = Object.keys(map);
     return Array.from({ length: numberOfMonsters }, (v, k) => (
       {
@@ -35,9 +34,9 @@ function worldDestruction(numberOfMonsters) {
         location: cities[Math.floor(Math.random() * cities.length)],
         moves: 0,
       }));
-  }
+  };
 
-  function moveMonsters() {
+  const moveMonsters = () => {
     monsters = monsters.map((monster) => {
       const { name, location, moves } = monster;
 
@@ -56,9 +55,9 @@ function worldDestruction(numberOfMonsters) {
         moves: moves + 1,
       };
     });
-  }
+  };
 
-  function checkDestroyedCities() {
+  const checkDestroyedCities = () => {
     const killedMonsters = [];
 
     // find the cities which were destroyed (have two or more monsters) in the next steps
@@ -101,9 +100,9 @@ function worldDestruction(numberOfMonsters) {
     });
 
     logCitiesDestroyed(destroyedCities, killedMonsters);
-  }
+  };
 
-  function logCitiesDestroyed(destroyedCities, killedMonsters) {
+  const logCitiesDestroyed = (destroyedCities, killedMonsters) => {
     destroyedCities.forEach((city) => {
       const logMonsters = killedMonsters.filter(monster => monster.location === city);
 
@@ -120,9 +119,9 @@ function worldDestruction(numberOfMonsters) {
 
       console.log(`${city} has been destroyed${logSentence}`);
     });
-  }
+  };
 
-  function logFinalResult() {
+  const logFinalResult = () => {
     const logResult = Object
 
       // get array of standing cities
@@ -140,9 +139,9 @@ function worldDestruction(numberOfMonsters) {
       }, '');
 
     console.log(logResult);
-  }
+  };
 
-  function oppositeDirection(direction) {
+  const oppositeDirection = (direction) => {
     switch (direction) {
       case 'north':
         return 'south';
@@ -155,7 +154,7 @@ function worldDestruction(numberOfMonsters) {
       default:
         return '';
     }
-  }
+  };
 
   // Map object will store all cities as keys
   // Each key will have an object with directions(North, South, West, East) as properties
@@ -176,6 +175,6 @@ function worldDestruction(numberOfMonsters) {
   }
 
   logFinalResult();
-}
+};
 
 worldDestruction(3000);
