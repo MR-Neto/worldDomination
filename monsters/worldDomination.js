@@ -83,9 +83,14 @@ function worldDestruction(numberOfMonsters) {
       ),
         [])
 
-    // Remove destroyed cities
+    // Remove destroyed cities and connections
     destroyedCities.forEach(city => {
+      const connections = Object.entries(map[city]);
 
+      connections.forEach(connection=>{
+        delete map[connection[1]][oppositeDirection(connection[0])]
+      })
+      
       delete map[city];
     });
 
@@ -136,6 +141,21 @@ function worldDestruction(numberOfMonsters) {
       }, "");
 
     console.log(logResult);
+  }
+
+  function oppositeDirection(direction){
+    switch (direction) {
+      case 'north':
+        return 'south';
+      case 'south':
+        return 'north';
+      case 'east':
+        return 'west';
+      case 'west':
+        return 'east';
+      default:
+        return ''
+    }
   }
 
   // Map object will store all cities as keys which have an object with  directions(North, South, West, East) as properties. 
