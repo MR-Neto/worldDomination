@@ -1,22 +1,25 @@
 "use strict";
-const fs = require('fs');
 
 function worldDestruction(numberOfMonsters) {
 
   function loadMap() {
+    const fs = require('fs');
     const data = fs.readFileSync('./monsters/world_map_small.txt').toString('utf-8').split('\n');
     const map = {};
     data.forEach(line => {
-      const city = line.split(' ')[0];
-      const connections = line.split(' ');
-      connections.shift();
-      map[city] = {};
-
-      connections.forEach((connection) => {
-        const direction = connection.split('=')[0];
-        const connectedCity = connection.split('=')[1];
-        map[city][direction] = connectedCity;
-      })
+      //don't consider empty lines
+      if(line!==""){
+        const city = line.split(' ')[0];
+        const connections = line.split(' ');
+        connections.shift();
+        map[city] = {};
+  
+        connections.forEach((connection) => {
+          const direction = connection.split('=')[0];
+          const connectedCity = connection.split('=')[1];
+          map[city][direction] = connectedCity;
+        })
+      }
     });
 
     return map;
@@ -40,7 +43,13 @@ function worldDestruction(numberOfMonsters) {
 
       const movementOptions = Object
         .values(map[location])
+        //make sure the monster moves to a existing city
         .filter((city) => Object.keys(map).includes(city));
+
+      //trapped monsters won't move  
+      if (movementOptions.length === 0) {
+        return monster;
+      }
 
       const newLocation = movementOptions[Math.floor(Math.random() * movementOptions.length)]
 
@@ -76,6 +85,7 @@ function worldDestruction(numberOfMonsters) {
 
     // Remove destroyed cities
     destroyedCities.forEach(city => {
+
       delete map[city];
     });
 
@@ -104,7 +114,7 @@ function worldDestruction(numberOfMonsters) {
           case logMonsters.length - 1:
             return string.concat(` and monster ${monster.name}!`);
           default:
-            return string.concat(`, by monster ${monster.name}`);
+            return string.concat(`, monster ${monster.name}`);
         }
       }, "")
 
@@ -113,17 +123,38 @@ function worldDestruction(numberOfMonsters) {
 
   }
 
+  function logFinalResult() {
+    const logResult = Object
+      .keys(map)
+      .reduce((acc, city) => {
+        const connectionString =Object
+          .entries(map[city])
+          .reduce((connectionString,connection)=> (
+            connectionString.concat(` ${connection[0]}=${connection[1]}`)
+          ),"")
+        return acc.concat(city, connectionString ,"\n")
+      }, "");
+
+    console.log(logResult);
+  }
+
   // Map object will store all cities as keys which have an object with  directions(North, South, West, East) as properties. 
   let map = loadMap();
-  
+
   // Array of monsters, which are objects with the properties (name, location and moves)
   let monsters = createMonsters(numberOfMonsters);
 
   // When monsters are placed randomly, they may fall in the same city. Thus, we need to destroy those cities.
   checkDestroyedCities();
 
-  moveMonsters();
+  let numberOfMovements = 0;
+  while (monsters.length > 0 && numberOfMovements <= 10000) {
+    moveMonsters();
+    checkDestroyedCities();
+    numberOfMovements += 1;
+  }
 
+  logFinalResult();
 }
 
-worldDestruction(20);
+worldDestruction(80);
