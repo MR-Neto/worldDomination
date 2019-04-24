@@ -4,16 +4,16 @@ function worldDestruction(numberOfMonsters) {
 
   function loadMap() {
     const fs = require('fs');
-    const data = fs.readFileSync('./monsters/world_map_small.txt').toString('utf-8').split('\n');
+    const data = fs.readFileSync('./monsters/world_map_medium.txt').toString('utf-8').split('\n');
     const map = {};
     data.forEach(line => {
       //don't consider empty lines
-      if(line!==""){
+      if (line !== "") {
         const city = line.split(' ')[0];
         const connections = line.split(' ');
         connections.shift();
         map[city] = {};
-  
+
         connections.forEach((connection) => {
           const direction = connection.split('=')[0];
           const connectedCity = connection.split('=')[1];
@@ -41,10 +41,7 @@ function worldDestruction(numberOfMonsters) {
     monsters = monsters.map((monster) => {
       const { name, location, moves } = monster;
 
-      const movementOptions = Object
-        .values(map[location])
-        //make sure the monster moves to a existing city
-        .filter((city) => Object.keys(map).includes(city));
+      const movementOptions = Object.values(map[location])
 
       //trapped monsters won't move  
       if (movementOptions.length === 0) {
@@ -87,10 +84,10 @@ function worldDestruction(numberOfMonsters) {
     destroyedCities.forEach(city => {
       const connections = Object.entries(map[city]);
 
-      connections.forEach(connection=>{
+      connections.forEach(connection => {
         delete map[connection[1]][oppositeDirection(connection[0])]
       })
-      
+
       delete map[city];
     });
 
@@ -132,18 +129,18 @@ function worldDestruction(numberOfMonsters) {
     const logResult = Object
       .keys(map)
       .reduce((acc, city) => {
-        const connectionString =Object
+        const connectionString = Object
           .entries(map[city])
-          .reduce((connectionString,connection)=> (
+          .reduce((connectionString, connection) => (
             connectionString.concat(` ${connection[0]}=${connection[1]}`)
-          ),"")
-        return acc.concat(city, connectionString ,"\n")
+          ), "")
+        return acc.concat(city, connectionString, "\n")
       }, "");
 
     console.log(logResult);
   }
 
-  function oppositeDirection(direction){
+  function oppositeDirection(direction) {
     switch (direction) {
       case 'north':
         return 'south';
@@ -177,4 +174,4 @@ function worldDestruction(numberOfMonsters) {
   logFinalResult();
 }
 
-worldDestruction(80);
+worldDestruction(3000);
