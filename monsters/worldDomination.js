@@ -62,7 +62,7 @@ const worldDestruction = (numberOfMonsters) => {
   };
 
   const checkDestroyedCities = () => {
-    // find the cities which were destroyed (have two or more monsters) in the next steps
+    // find the cities which were destroyed
     const destroyedCities = monsters
 
       // get an array of cities where monsters are located
@@ -149,13 +149,13 @@ const worldDestruction = (numberOfMonsters) => {
   };
 
   // Map object will store all cities as keys
-  // Each key will have an object with directions(North, South, West, East) as properties
+  // Each key will have an object with directions (North, South, West, East) as properties
   let map = loadMap();
 
   // Array of alive monsters, which have name, location and moves
   let monsters = createMonsters(numberOfMonsters);
 
-  // Monster may be placed randomly in the same city
+  // Monster may be placed at first randomly in the same city
   // Thus, we need to destroy those cities
   checkDestroyedCities();
 
@@ -163,7 +163,7 @@ const worldDestruction = (numberOfMonsters) => {
   // 3 conditions to keep the loop going:
   // There are monsters
   // The monsters have moved less than 10000 times
-  // There is least an unstuck monster
+  // There is at least an unstuck monster
 
   let numberOfMovements = 0;
 
