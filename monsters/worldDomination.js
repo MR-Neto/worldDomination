@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const worldDestruction = (numberOfMonsters) => {
   const loadMap = () => {
-    const data = fs.readFileSync('./monsters/world_map_medium.txt').toString('utf-8').split('\n');
+    const data = fs.readFileSync('./monsters/world_map_small.txt').toString('utf-8').split('\n');
     const map = {};
     data.forEach((line) => {
       // don't consider empty lines
@@ -32,28 +32,32 @@ const worldDestruction = (numberOfMonsters) => {
       {
         name: k,
         location: cities[Math.floor(Math.random() * cities.length)],
-        moves: 0,
+        stuck: false,
       }));
   };
 
   const moveMonsters = () => {
     monsters = monsters.map((monster) => {
-      const { name, location, moves } = monster;
+      const { location, stuck } = monster;
+      // Only unstuck monsters will move
+      if (!stuck) {
+        const movementOptions = Object.values(map[location]);
 
-      const movementOptions = Object.values(map[location]);
+        if (movementOptions.length === 0) {
+          return {
+            ...monster,
+            stuck: true,
+          };
+        }
 
-      // trapped monsters won't move
-      if (movementOptions.length === 0) {
-        return monster;
+        const newLocation = movementOptions[Math.floor(Math.random() * movementOptions.length)];
+
+        return {
+          ...monster,
+          location: newLocation,
+        };
       }
-
-      const newLocation = movementOptions[Math.floor(Math.random() * movementOptions.length)];
-
-      return {
-        name,
-        location: newLocation,
-        moves: moves + 1,
-      };
+      return monster;
     });
   };
 
@@ -167,8 +171,17 @@ const worldDestruction = (numberOfMonsters) => {
   // Thus, we need to destroy those cities
   checkDestroyedCities();
 
+
+  // 3 conditions to keep the loop going:
+  // There are monsters
+  // The monsters have moved less than 10000 times
+  // There is least an unstuck monster
+
   let numberOfMovements = 0;
-  while (monsters.length > 0 && numberOfMovements <= 10000) {
+
+  while (monsters.length > 0
+    && numberOfMovements <= 10000
+    && monsters.filter(monster => !monster.stuck).length > 0) {
     moveMonsters();
     checkDestroyedCities();
     numberOfMovements += 1;
@@ -177,4 +190,4 @@ const worldDestruction = (numberOfMonsters) => {
   logFinalResult();
 };
 
-worldDestruction(3000);
+worldDestruction(30);
