@@ -92,10 +92,10 @@ const worldDestruction = (numberOfMonsters) => {
     });
 
 
-    // keep only alive monsters
-    monsters = monsters.filter(monster => !destroyedCities.includes(monster.location));
     // track killed monsters
     const killedMonsters = monsters.filter(monster => destroyedCities.includes(monster.location));
+    // keep only alive monsters
+    monsters = monsters.filter(monster => !destroyedCities.includes(monster.location));
 
     logCitiesDestroyed(destroyedCities, killedMonsters);
   };
